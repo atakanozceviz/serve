@@ -22,7 +22,7 @@ func main() {
 	ok, err := isDirectory(*directory)
 	switch {
 	case err != nil:
-		log.Fatal(err)
+		log.Fatalf("[FATAL] %v\n", err)
 	case ok:
 		http.Handle("/", http.FileServer(http.Dir(*directory)))
 	case !ok:
@@ -37,13 +37,13 @@ func main() {
 		fmt.Printf("[WARN] Cannot get outbound IP: %v\n", err)
 		fmt.Printf("[INFO] Serving \"%s\" on: http://%s\n", path.Base(*directory), server.Addr)
 		if err := server.ListenAndServe(); err != nil {
-			log.Fatalf("[FATAL] %v", err)
+			log.Fatalf("[FATAL] %v\n", err)
 		}
 	} else {
 		server.Addr = ip.String() + ":" + *port
 		fmt.Printf("[INFO] Serving \"%s\" on: http://%s\n", path.Base(*directory), server.Addr)
 		if err := server.ListenAndServe(); err != nil {
-			log.Fatalf("[FATAL] %v", err)
+			log.Fatalf("[FATAL] %v\n", err)
 		}
 	}
 }
