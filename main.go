@@ -24,7 +24,7 @@ func main() {
 	case err != nil:
 		log.Fatalf("[FATAL] %v\n", err)
 	case ok:
-		http.Handle("/", fileServer(*directory))
+		http.HandleFunc("/", fileServer(*directory))
 	case !ok:
 		http.HandleFunc("/", serveFile(*directory))
 	}
