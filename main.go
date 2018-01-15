@@ -24,11 +24,9 @@ func main() {
 	case err != nil:
 		log.Fatalf("[FATAL] %v\n", err)
 	case ok:
-		http.Handle("/", http.FileServer(http.Dir(*directory)))
+		http.Handle("/", fileServer(*directory))
 	case !ok:
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, *directory)
-		})
+		http.HandleFunc("/", serveFile(*directory))
 	}
 
 	ip, err := outboundIP()

@@ -34,3 +34,24 @@ func isDirectory(path string) (bool, error) {
 	}
 	return fileInfo.IsDir(), err
 }
+
+func fileServer(directory string) http.HandlerFunc {
+	fs := http.FileServer(http.Dir(directory))
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Set some header.
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1.
+		w.Header().Set("Pragma", "no-cache")                                   // HTTP 1.0.
+		w.Header().Set("Expires", "0")                                         // Proxies.
+		// Serve with the actual handler.
+		fs.ServeHTTP(w, r)
+	}
+}
+
+func serveFile(directory string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1.
+		w.Header().Set("Pragma", "no-cache")                                   // HTTP 1.0.
+		w.Header().Set("Expires", "0")                                         // Proxies.
+		http.ServeFile(w, r, directory)
+	}
+}
