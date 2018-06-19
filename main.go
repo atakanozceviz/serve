@@ -29,6 +29,8 @@ func main() {
 		http.HandleFunc("/", serveFile(*directory))
 	}
 
+	http.HandleFunc("/u", uploadFile(*directory))
+
 	ip, err := outboundIP()
 	if err != nil {
 		server.Addr = "127.0.0.1" + ":" + *port

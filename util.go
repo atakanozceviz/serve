@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -55,5 +58,35 @@ func serveFile(directory string) http.HandlerFunc {
 		w.Header().Set("Expires", "0")                                         // Proxies.
 		w.Header().Set("Content-Disposition", "attachment; filename=\""+path.Base(directory)+"")
 		http.ServeFile(w, r, directory)
+	}
+}
+
+var form = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <title>Upload</title></head><body><h5>%s</h5> <form enctype="multipart/form-data" action="/u" method="post"> <input type="file" name="uploadfile" multiple/> <input type="submit" value="upload"/> </form></body></html>`
+
+func uploadFile(directory string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			fmt.Fprintf(w, form, "")
+		} else {
+			r.ParseMultipartForm(32 << 20)
+			fhs := r.MultipartForm.File["uploadfile"]
+			for _, fh := range fhs {
+				file, err := fh.Open()
+				if err != nil {
+					log.Fatalf("[FATAL] %v\n", err)
+					return
+				}
+				defer file.Close()
+
+				f, err := os.OpenFile(path.Dir(directory)+"/"+fh.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+				if err != nil {
+					log.Fatalf("[FATAL] %v\n", err)
+					return
+				}
+				defer f.Close()
+				io.Copy(f, file)
+			}
+			fmt.Fprintf(w, form, "Done!")
+		}
 	}
 }
