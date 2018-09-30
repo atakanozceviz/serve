@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	port := flag.String("p", "8080", "port to serve on")
-	directory := flag.String("d", ".", "the directory or file to host")
+	port := flag.String("p", "4242", "port on which the server will listen")
+	directory := flag.String("s", ".", "filesystem path to read file(s) relative from")
 	flag.Parse()
 
 	args := os.Args[1:]
