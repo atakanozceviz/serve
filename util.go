@@ -61,32 +61,43 @@ func serveFile(directory string) http.HandlerFunc {
 	}
 }
 
-var form = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <title>Upload</title></head><body><h5>%s</h5> <form enctype="multipart/form-data" action="/u" method="post"> <input type="file" name="uploadfile" multiple/> <input type="submit" value="upload"/> </form></body></html>`
+var form = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <title>Upload</title></head><body><h5>%s</h5> <form enctype="multipart/form-data" action="/u" method="post"> <input type="file" name="files" multiple/> <input type="submit" value="upload"/> </form></body></html>`
 
 func uploadFile(directory string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			fmt.Fprintf(w, form, "")
 		} else {
-			r.ParseMultipartForm(32 << 20)
-			fhs := r.MultipartForm.File["uploadfile"]
-			for _, fh := range fhs {
-				file, err := fh.Open()
-				if err != nil {
-					log.Fatalf("[FATAL] %v\n", err)
-					return
-				}
-				defer file.Close()
-
-				f, err := os.OpenFile(path.Dir(directory)+"/"+fh.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-				if err != nil {
-					log.Fatalf("[FATAL] %v\n", err)
-					return
-				}
-				defer f.Close()
-				io.Copy(f, file)
+			err := r.ParseMultipartForm(32 << 20)
+			if err != nil {
+				fmt.Fprintf(w, "%v\n", err)
+				log.Printf("[WARN] [%s] %v\n", r.RemoteAddr, err)
+				return
 			}
-			fmt.Fprintf(w, form, "Done!")
+			files := r.MultipartForm.File["files"]
+			for _, file := range files {
+				src, err := file.Open()
+				if err != nil {
+					fmt.Fprintf(w, "%v\n", err)
+					log.Printf("[WARN] [%s] %v\n", r.RemoteAddr, err)
+					return
+				}
+				defer src.Close()
+
+				dst, err := os.Create(path.Join(directory, file.Filename))
+				if err != nil {
+					fmt.Fprintf(w, "%v\n", err)
+					log.Printf("[WARN] [%s] %v\n", r.RemoteAddr, err)
+					return
+				}
+				defer dst.Close()
+				if _, err = io.Copy(dst, src); err != nil {
+					fmt.Fprintf(w, "%v\n", err)
+					log.Printf("[WARN] [%s] %v\n", r.RemoteAddr, err)
+					return
+				}
+			}
+			fmt.Fprintf(w, form, fmt.Sprintf("Uploaded successfully %d files", len(files)))
 		}
 	}
 }
