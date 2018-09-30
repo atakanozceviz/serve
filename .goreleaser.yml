@@ -43,7 +43,5 @@ archive:
     dragonfly: DragonFlyBSD
   files:
     - README.md
-fpm:
-  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
