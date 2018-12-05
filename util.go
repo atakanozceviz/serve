@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -56,7 +56,7 @@ func serveFile(directory string) http.HandlerFunc {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1.
 		w.Header().Set("Pragma", "no-cache")                                   // HTTP 1.0.
 		w.Header().Set("Expires", "0")                                         // Proxies.
-		w.Header().Set("Content-Disposition", "attachment; filename=\""+path.Base(directory)+"")
+		w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(directory)+"")
 		http.ServeFile(w, r, directory)
 	}
 }
@@ -84,7 +84,7 @@ func uploadFile(directory string) http.HandlerFunc {
 				}
 				defer src.Close()
 
-				dst, err := os.Create(path.Join(directory, file.Filename))
+				dst, err := os.Create(filepath.Join(directory, file.Filename))
 				if err != nil {
 					fmt.Fprintf(w, "%v\n", err)
 					log.Printf("[WARN] [%s] %v\n", r.RemoteAddr, err)

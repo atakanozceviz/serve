@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 func main() {
@@ -35,14 +35,14 @@ func main() {
 	if err != nil {
 		server.Addr = "127.0.0.1" + ":" + *port
 		fmt.Printf("[WARN] Cannot get outbound IP: %v\n", err)
-		fmt.Printf("[INFO] Serving \"%s\" on: http://%s\n", path.Base(*directory), server.Addr)
+		fmt.Printf("[INFO] Serving \"%s\" on: http://%s\n", filepath.Base(*directory), server.Addr)
 		fmt.Printf("[INFO] Use http://%s/u to upload files\n", server.Addr)
 		if err := server.ListenAndServe(); err != nil {
 			log.Fatalf("[FATAL] %v\n", err)
 		}
 	} else {
 		server.Addr = ip.String() + ":" + *port
-		fmt.Printf("[INFO] Serving \"%s\" on: http://%s\n", path.Base(*directory), server.Addr)
+		fmt.Printf("[INFO] Serving \"%s\" on: http://%s\n", filepath.Base(*directory), server.Addr)
 		fmt.Printf("[INFO] Use http://%s/u to upload files\n", server.Addr)
 		if err := server.ListenAndServe(); err != nil {
 			log.Fatalf("[FATAL] %v\n", err)
