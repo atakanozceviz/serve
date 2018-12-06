@@ -28,7 +28,7 @@ $ Usage of serve:
         filesystem path to read file(s) relative from (default ".")
 ```
 
-You can use command line argument instead of `-d` flag.
+You can use command line argument instead of `-s` flag.
 
 #### Example:
 
